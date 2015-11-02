@@ -9,7 +9,7 @@ const eq = (z_expect, z_actual) => {
 };
 
 const udf = (z_thing, s_property) => {
-	assert.deepEqual(z_thing[s_property], undefined, s_property);
+	assert.deepEqual(z_thing[s_property], undefined, '"'+s_property+'" is not undefined');
 };
 
 describe('rmprop', function () {
@@ -89,8 +89,9 @@ describe('rmprop', function () {
 		});
 
 		eq(f(), 'hi');
-		udf(f, 'prototype');
+		udf(f, 'name');
 		udf(f, 'length');
+		udf(f, 'prototype');
 		udf(f, '__proto__');
 	});
 
@@ -101,6 +102,9 @@ describe('rmprop', function () {
 
 		eq(typeof f.bind, 'function');
 		eq(typeof f.apply, 'function');
+
+		udf(f, 'name');
+		udf(f, 'length');
 	});
 
 	it('supports arrays', () => {
@@ -145,7 +149,7 @@ describe('rmprop', function () {
 			},
 		});
 
-		assert.deepEqual(a.length, 7);
+		eq(a.length, 7);
 	});
 
 

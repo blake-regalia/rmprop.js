@@ -84,13 +84,11 @@ var num = unprop(5, ['valueOf']);
 (num === 5); // false
 
 typeof num; // 'object'
-num instanceOf Number; // false
-// ^^ num has both .__proto__ and .prototype properties set to undefined
 ```
 
 ### Transparent properties/methods
 
-The virtual copy returned by `rmprop` keeps any properties not defined in `thing`'s prototype chain and treats them as transparent proxies for the original object. This means that changes to the virtual copy update the original object.
+The virtual copy returned by `rmprop` keeps any properties not defined in `thing`'s prototype chain and treats them as transparent proxies for the original object. This means that changes to the virtual copy will update the original object.
 
 ```js
 var obj = {test: 'hi'};
