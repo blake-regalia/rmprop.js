@@ -2,7 +2,7 @@
 > Override all properties inhereted by an object's prototype chain
 
 
-If you've ever wanted to use property names for other purposes such as the `.length` property on an `Array` or `String`, this library will transform your object (eg: an instance of a class) into an object with all properties found in its prototype chain set to `undefined`, effectively stopping the javascript engine from traversing higher up the prototype chain to find the values for those properties. 
+If you've ever wanted to use property names for other purposes such as the `.length` property on an `Array` or `String`, this library will transform your object (eg: an instance of a class) into an object with all properties found in its prototype chain set to `undefined`, effectively stopping the javascript engine from bubbling up the prototype chain to find the values for those properties. 
 
 
 ## Install

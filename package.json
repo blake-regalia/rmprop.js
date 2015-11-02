@@ -16,7 +16,7 @@
     "properties",
     "prototype"
   ],
-  "repository": "blake-regalia/rmprop",
+  "repository": "blake-regalia/rmprop.js",
   "devDependencies": {
     "babel-core": "^5.5.0",
     "del": "^2.0.2",
