@@ -122,6 +122,8 @@ var str = rmprop('hi', ['valueOf']); // do not override .valueOf
 str.length; // undefined
 str.indexOf; // undefined
 str.__proto__; // undefined
+
+str instanceof String; // false
 ```
 
 
