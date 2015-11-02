@@ -76,6 +76,18 @@ virtual.test; // 'hi'
 (virtual[unprop.real] === obj); // true
 ```
 
+However, excluding the `valueOf` property on primitive datatypes will yield true when the loose equality operator is used:
+```js
+var num = unprop(5, ['valueOf']);
+
+(num == 5); // true
+(num === 5); // false
+
+typeof num; // 'object'
+num instanceOf Number; // false
+// ^^ num has both .__proto__ and .prototype properties set to undefined
+```
+
 ### Transparent properties/methods
 
 The virtual copy returned by `rmprop` keeps any properties not defined in `thing`'s prototype chain and treats them as transparent proxies for the original object. This means that changes to the virtual copy update the original object.
@@ -104,7 +116,7 @@ var str = rmprop('hi', ['valueOf']); // do not override .valueOf
 // ^^ loose equality operator uses valueOf function
 
 (str === 'hi'); // false
-// ^^ strict equality checks types too; str type is a String object
+// ^^ strict equality checks types too; str will never be primitive type
 
 (str[rmprop.real] === 'hi'); // true
 // ^^ using the .real symbol grants access to the original (real) value
