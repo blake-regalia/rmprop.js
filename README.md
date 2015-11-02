@@ -4,6 +4,7 @@
 
 If you've ever wanted to use property names for other purposes such as the `.length` property on an `Array` or `String`, this library will transform your object (eg: an instance of a class) into an object with all properties found in its prototype chain set to `undefined`, effectively stopping the javascript engine from bubbling up the prototype chain to find the values for those properties. 
 
+This module was created to support meta-programming in javascript; it is useful for creating API objects in which a property name is set dynamically and used like a dictionary (ie: when the property name could be any string). While Proxies are not yet supported, this might suffice as an alternative to your trap needs.
 
 ## Install
 
@@ -66,7 +67,6 @@ Consider the following example:
 
 ```js
 var obj = {test: 'hi'};
-
 var virtual = rmprop(obj);
 
 virtual.test; // 'hi'
@@ -74,6 +74,22 @@ virtual.test; // 'hi'
 (virtual === obj); // false
 
 (virtual[unprop.real] === obj); // true
+```
+
+### Transparent properties/methods
+
+The virtual copy returned by `rmprop` keeps any properties not defined in `thing`'s prototype chain and treats them as transparent proxies for the original object. This means that changes to the virtual copy update the original object.
+
+```js
+var obj = {test: 'hi'};
+var virtual = rmprop(obj);
+
+// change the value of a property on the virtual object
+virtual.test = 'hello';
+
+// changes are reflected by real object
+obj.test; // 'hello'
+virtual.test; // 'hello'
 ```
 
 

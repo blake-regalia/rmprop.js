@@ -1,128 +1,169 @@
 'use strict';
 
 import assert from 'assert';
-import unprop from '../lib';
+import rmprop from '../lib';
+import arginfo from 'arginfo';
 
-describe('unprop', function () {
+const eq = (z_expect, z_actual) => {
+	assert.deepEqual(z_expect, z_actual);
+};
+
+const udf = (z_thing, s_property) => {
+	assert.deepEqual(z_thing[s_property], undefined, s_property);
+};
+
+describe('rmprop', function () {
 
 	it('supports booleans', () => {
-		let b = unprop(false);
+		let b = rmprop(false);
 
-		assert.deepEqual(b.constructor);
-		assert.deepEqual(b.valueOf);
-		assert.deepEqual(b.toString);
-		assert.deepEqual(b.__proto__);
+		udf(b, 'constructor');
+		udf(b, 'valueOf');
+		udf(b, 'toString');
+		udf(b, '__proto__');
 	});
 
 	it('supports exclusion for booleans', () => {
-		let b = unprop(false, ['valueOf', 'toString']);
+		let b = rmprop(false, ['valueOf', 'toString']);
 
-		assert.deepEqual(b==false, true);
-		assert.deepEqual(b+'', 'false');
+		eq(b==false, true);
+		eq(b+'', 'false');
 	});
 
 	it('supports numbers', () => {
-		let n = unprop(10);
+		let n = rmprop(10);
 
-		assert.deepEqual(n.constructor);
-		assert.deepEqual(n.valueOf);
-		assert.deepEqual(n.toString);
-		assert.deepEqual(n.__proto__);
+		udf(n, 'constructor');
+		udf(n, 'valueOf');
+		udf(n, 'toString');
+		udf(n, '__proto__');
 	});
 
 	it('supports exclusion for numbers', () => {
-		let n = unprop(10, ['valueOf', 'toString']);
+		let n = rmprop(10, ['valueOf', 'toString']);
 
-		assert.deepEqual(n == 10, true);
-		assert.deepEqual(n+'', '10');
+		eq(n == 10, true);
+		eq(n+'', '10');
 	});
 
 	it('supports strings', () => {
-		let s = unprop('hi');
+		let s = rmprop('hi');
 
-		assert.deepEqual(s.length)
+		udf(s, 'length');
 
-		assert.deepEqual(s.constructor);
-		assert.deepEqual(s.valueOf);
-		assert.deepEqual(s.toString);
-		assert.deepEqual(s.__proto__);
+		udf(s, 'constructor');
+		udf(s, 'valueOf');
+		udf(s, 'toString');
+		udf(s, '__proto__');
 	});
 
 	it('supports exclusion for strings', () => {
-		let s = unprop('hi', ['valueOf', 'toString', 'length']);
+		let s = rmprop('hi', ['valueOf', 'toString', 'length']);
 
-		assert.deepEqual(s == 'hi', true);
-		assert.deepEqual(s+'', 'hi');
-		assert.deepEqual(s.length, 2);
+		eq(s == 'hi', true);
+		eq(s+'', 'hi');
+		eq(s.length, 2);
 	});
 
 	it('supports objects', () => {
-		let o = unprop({test: 'hi'});
+		let o = rmprop({test: 'hi'});
 
-		assert.deepEqual(o.test, 'hi');
-		assert.deepEqual(o.hasOwnProperty);
-		assert.deepEqual(o.toString);
+		eq(o.test, 'hi');
+
+		udf(o, 'hasOwnProperty');
+		udf(o, 'toString');
 	});
 
 	it('supports exclusion for objects', () => {
-		let o = unprop({test: 'hi'}, ['valueOf']);
+		let o = rmprop({test: 'hi'}, ['valueOf']);
 
-		assert.deepEqual(o.test, 'hi');
-		assert.deepEqual(o.toString);
-		assert.deepEqual(o.valueOf(), o);
+		eq(o.test, 'hi');
+		eq(o.valueOf(), o);
+
+		udf(o, 'toString');
 	});
 
 	it('supports functions', () => {
-		let f = unprop(() => {
+		let f = rmprop(() => {
 			return 'hi';
 		});
 
-		assert.deepEqual(f(), 'hi');
-		assert.deepEqual(f.length);
-		assert.deepEqual(f.__proto__);
+		eq(f(), 'hi');
+		udf(f, 'prototype');
+		udf(f, 'length');
+		udf(f, '__proto__');
 	});
 
 	it('supports exclusion for functions', () => {
-		let f = unprop(() => {
+		let f = rmprop(() => {
 			return 'hi';
 		}, ['apply', 'bind']);
 
-		assert.deepEqual(typeof f.bind, 'function');
-		assert.deepEqual(typeof f.apply, 'function');
+		eq(typeof f.bind, 'function');
+		eq(typeof f.apply, 'function');
 	});
 
 	it('supports arrays', () => {
-		let a = unprop(['hi']);
+		let a = rmprop(['hi']);
 
-		assert.deepEqual(a[0], 'hi');
-		assert.deepEqual(a.length);
+		eq(a[0], 'hi');
+		udf(a, 'length');
+		udf(a, 'indexOf');
 	});
 
 	it('supports exclusion for arrays', () => {
-		let a = unprop(['hi'], ['indexOf']);
+		let a = rmprop(['hi'], ['indexOf']);
 
-		assert.deepEqual(a[0], 'hi');
-		assert.deepEqual(a.indexOf('hi'), 0);
+		eq(a[0], 'hi');
+		eq(a.indexOf('hi'), 0);
 	});
 
 
 	it('allows access to real entity', () => {
-		let s = unprop('hi');
+		let s = rmprop('hi');
 
-		assert.deepEqual(s.length);
-		assert.deepEqual(s[unprop.real], 'hi');
-		assert.deepEqual(s[unprop.real].length, 2);
+		eq(s[rmprop.real], 'hi');
+		eq(s[rmprop.real].length, 2);
 	});
 
 	it('allows new methods to use real object', () => {
-		let a = unprop(['hi','there']);
+		let a = rmprop(['hi','there']);
+
+		a.last = function() {
+			return this[rmprop.real][this[rmprop.real].length-1];
+		};
+
+		eq(a.last(), 'there');
+	});
+
+	it('allows new property getters to use real object', () => {
+		let a = rmprop(['hi','there']);
 
 		Object.defineProperty(a, 'length', {
 			get: function() {
-				return this[unprop.real].join('').length;
+				return this[rmprop.real].join('').length;
 			},
 		});
+
 		assert.deepEqual(a.length, 7);
 	});
 
+
+	it('creates a virtual copy of simple objects', () => {
+		let h = {test: 'hi'};
+		let p = rmprop(h);
+
+		eq(h === p, false);
+		eq(p.test, 'hi');
+	});
+
+	it('updates real object from changes to virtual copy', () => {
+		var h = {test: 'hi'};
+		var p = rmprop(h);
+
+		p.test = 'hello';
+
+		eq(h.test, 'hello');
+		eq(p.test, 'hello');
+	});
 });
