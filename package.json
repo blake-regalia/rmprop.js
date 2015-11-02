@@ -1,6 +1,6 @@
 {
   "name": "rmprop",
-  "version": "1.0.1",
+  "version": "1.0.0",
   "description": "Override all properties inhereted by an object's prototype chain",
   "author": {
     "name": "Blake Regalia",

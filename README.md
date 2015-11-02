@@ -16,29 +16,89 @@ $ npm install --save rmprop
 
 ### rmprop(thing: anytype[, exclude: array{string}])
 
-The optional `exclude` argument declares which properties to not override.
+Finds all properties defined by each class in `thing`'s prototype chain, then creates a virtual copy of `thing` object with all those properties set to `undefined`. Not only does this block the prototype properties from being accessed, but it also lets you define properties that the original object might not allow (such as the `.length` property). The optional `exclude` argument declares which properties not to override.
 
 ```js
 var rmprop = require('rmprop');
 
-var array = rmprop(['hello','there', ['indexOf']); // override all array properties except for the .indexOf method
+var arr = rmprop(['hello','there'], ['indexOf']);
+// ^^ override all Array prototype properties except for the .indexOf method
 
-array.length; // undefined
-array[0]; // 'hello'; because this property is defined on the object itself, not in Array.prototype
-array.indexOf('there'); // 1
-array.join; // undefined
-array.reverse; // undefined
+arr.forEach; // undefined
 
-var str = rmprop('hi', ['valueOf']); // do not override .valueOf
-(str == 'hi'); // true; loose equality operator uses valueOf function
-(str === 'hi'); // false; str type is a String object
-str.length; // undefined
-str.__proto__; // undefined
-str[rmprop.real] === 'hi'; // true
+arr[0]; // 'hello'
+// ^^ this property is defined on the object itself, not in Array.prototype
+
+arr.length; // undefined
+// ^^ although this property is defined on the object itself, Array.prototype also contains a .length property, so this is overridden by default
+
+arr.indexOf('there'); // 1
+arr.join; // undefined
+arr.reverse; // undefined
 ```
 
+### rmprop.real
+
+This is a Symbol which allows you to access the original (real) value of `thing` that was given to rmprop. Eg:
+
+```js
+var rmprop = require('rmprop');
+
+var arr = rmprop(['hi','there']);
+
+// redefine how length is computed
+Object.defineProperty(arr, 'length', {
+	get: function() {
+		return this[unprop.real].join('').length;
+	},
+})
+
+arr[0]; // 'hi'
+arr.length; // 7
+arr.indexOf; // undefined
+```
+
+### Testing equality
+
+`rmprop` creates a virtual copy of the real object, meaning that it creates a property/method on a new object for each corresponding property/method on the original object. The object you get back from rmprop will never be identical to the one you gave it.
+
+Consider the following example:
+
+```js
+var obj = {test: 'hi'};
+
+var virtual = rmprop(obj);
+
+virtual.test; // 'hi'
+
+(virtual === obj); // false
+
+(virtual[unprop.real] === obj); // true
+```
+
+
 ### Primitive datatypes
-Primitive datatypes will be boxed into their object equivalent (eg: `25` becomes `Number(25)`) so that they can hold properties. This also means that you need to 
+
+Primitive datatypes get boxed into their object equivalent (eg: `25` becomes `Number(25)`) so that they can hold properties. 
+
+```js
+var str = rmprop('hi', ['valueOf']); // do not override .valueOf
+
+(str == 'hi'); // true
+// ^^ loose equality operator uses valueOf function
+
+(str === 'hi'); // false
+// ^^ strict equality checks types too; str type is a String object
+
+(str[rmprop.real] === 'hi'); // true
+// ^^ using the .real symbol grants access to the original (real) value
+
+str.length; // undefined
+str.indexOf; // undefined
+str.__proto__; // undefined
+```
+
+
 
 ## License
 
