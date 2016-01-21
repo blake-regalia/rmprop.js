@@ -84,7 +84,7 @@ describe('rmprop', function () {
 	});
 
 	it('supports functions', () => {
-		let f = rmprop(() => {
+		let f = rmprop(function() {
 			return 'hi';
 		});
 
