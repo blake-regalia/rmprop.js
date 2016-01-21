@@ -9,7 +9,7 @@ const eq = (z_expect, z_actual) => {
 };
 
 const udf = (z_thing, s_property) => {
-	assert.deepEqual(z_thing[s_property], undefined, '"'+s_property+'" is not undefined');
+	assert.deepEqual(z_thing[s_property], undefined, '"'+s_property+'" is not undefined; instead = '+z_thing[s_property]);
 };
 
 describe('rmprop', function () {
