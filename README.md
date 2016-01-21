@@ -36,6 +36,9 @@ arr.length; // undefined
 arr.indexOf('there'); // 1
 arr.join; // undefined
 arr.reverse; // undefined
+
+arr.prototype; // undefined
+arr.__proto__; // undefined
 ```
 
 ### rmprop.real
@@ -57,6 +60,9 @@ Object.defineProperty(arr, 'length', {
 arr[0]; // 'hi'
 arr.length; // 7
 arr.indexOf; // undefined
+
+arr[rmprop.real].length; // 2
+arr[rmprop.real].indexOf; // function indexOf() { [native code] }
 ```
 
 ### Testing equality
