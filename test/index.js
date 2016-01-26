@@ -141,7 +141,7 @@ describe('rmprop', function () {
 	});
 
 	it('allows new property getters to use real object', () => {
-		let a = rmprop(['hi','there']);
+		let a = rmprop(['hi', 'there']);
 
 		Object.defineProperty(a, 'length', {
 			get: function() {
@@ -169,5 +169,36 @@ describe('rmprop', function () {
 
 		eq(h.test, 'hello');
 		eq(p.test, 'hello');
+	});
+
+	it('supports array emulation', () => {
+		var a = ['hello', 'world'];
+
+		let f = rmprop.emulateArray(a, (s) => {
+			return s+'!';
+		});
+
+		eq(f.length, 2);
+		eq(f[0], 'hello');
+		eq(typeof f.filter, 'function');
+		eq(f('test'), 'test!');
+	});
+
+	it('supports updating emulated array', () => {
+		var a = ['hello', 'world'];
+
+		let f = rmprop.emulateArray(a, (s) => {
+			return s+'!';
+		});
+
+		eq(f.length, 2);
+		f.push('!');
+		eq(f[2], '!');
+		eq(f.length, 3);
+		f.pop();
+		eq(f.length, 2);
+		f.length = 0;
+		f.push(1);
+		eq(f.length, 1);
 	});
 });

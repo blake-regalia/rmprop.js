@@ -65,6 +65,33 @@ arr[rmprop.real].length; // 2
 arr[rmprop.real].indexOf; // function indexOf() { [native code] }
 ```
 
+### rmprop.emulateArray(arr: array, cover: object)
+
+Special method for copying all methods from array `arr` onto object `cover`. Useful for creating an array that can also be a function:
+```js
+let a = ['a', 'b', 'c'];
+let f = rmprop.emulateArray(a, function(name) {
+	return 'hello '+name+'!';
+});
+
+f('you'); // 'hello you!'
+f.length; // 3
+f[0]; // 'a'
+f.indexOf('b'); // 1
+
+// array can be mutated
+f.push('d');
+f.length; // 4
+f[3]; // 'd'
+
+// length updates array as well
+f.length = 0;
+f.push('a');
+f.length; // 1
+f[0]; // 'a'
+```
+
+
 ### Testing equality
 
 `rmprop` creates a virtual copy of the real object, meaning that it creates a property/method on a new object for each corresponding property/method on the original object. The object you get back from rmprop will never be identical to the one you gave it.
